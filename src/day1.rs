@@ -1,5 +1,5 @@
 #[aoc_generator(day1)]
-pub fn gen1(input: &str) -> Vec<u32> {
+pub fn gen(input: &str) -> Vec<u32> {
     input
         .trim()
         .split('\n')
