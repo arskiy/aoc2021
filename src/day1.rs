@@ -2,7 +2,7 @@
 pub fn gen(input: &str) -> Vec<u32> {
     input
         .trim()
-        .split('\n')
+        .lines()
         .map(|x| x.parse::<u32>().unwrap())
         .collect()
 }
