@@ -56,7 +56,6 @@ pub fn calc_ratings(msb: bool, input: Vec<u32>) -> u32 {
     let mut v = input.clone();
 
     v = v
-        .clone()
         .into_iter()
         .filter(|x| ((x >> 11) != 0) == msb)
         .collect::<Vec<u32>>();
@@ -70,9 +69,8 @@ pub fn calc_ratings(msb: bool, input: Vec<u32>) -> u32 {
         println!("{:b}", rate);
 
         v = v
-            .iter()
-            .filter(|&x| ((*x >> i) & 1) == (rate >> i) & 1)
-            .map(|x| *x)
+            .into_iter()
+            .filter(|x| ((x >> i) & 1) == (rate >> i) & 1)
             .collect::<Vec<u32>>();
         i -= 1;
     }
