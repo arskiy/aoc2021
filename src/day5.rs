@@ -1,9 +1,9 @@
 #[derive(Debug)]
 pub struct Line {
-    x1: u32,
-    y1: u32,
-    x2: u32,
-    y2: u32,
+    x1: i32,
+    y1: i32,
+    x2: i32,
+    y2: i32,
 }
 
 #[aoc_generator(day5)]
@@ -12,7 +12,7 @@ pub fn gen(input: &str) -> Vec<Line> {
         .lines()
         .map(|x| {
             let y = x.replace(" -> ", ",");
-            let mut y = y.split(',').map(|y| y.parse::<u32>().unwrap());
+            let mut y = y.split(',').map(|y| y.parse::<i32>().unwrap());
 
             Line {
                 x1: y.next().unwrap(),
@@ -24,30 +24,46 @@ pub fn gen(input: &str) -> Vec<Line> {
         .collect()
 }
 
-#[aoc(day5, part1)]
-pub fn part1(input: &Vec<Line>) -> u32 {
+fn solve(input: &Vec<Line>, part1: bool) -> u32 {
     let mut ground = [[0; 1000]; 1000];
 
     for i in input {
-        if i.x1 == i.x2 {
-            let r = if i.y1 > i.y2 {
-                i.y2..=i.y1
-            } else {
-                i.y1..=i.y2
-            };
+        let x_sum = if i.x1 > i.x2 { -1 } else { 1 };
+        let y_sum = if i.y1 > i.y2 { -1 } else { 1 };
+        let mut x = i.x1.clone();
+        let mut y = i.y1.clone();
 
-            for j in r {
-                ground[j as usize][i.x1 as usize] += 1;
+        loop {
+            ground[y as usize][x as usize] += 1;
+
+            // vertical line
+            if i.x1 == i.x2 {
+                if y == i.y2 {
+                    break;
+                }
+
+                y += y_sum;
             }
-        } else if i.y1 == i.y2 {
-            let r = if i.x1 > i.x2 {
-                i.x2..=i.x1
-            } else {
-                i.x1..=i.x2
-            };
+            // horizontal line
+            else if i.y1 == i.y2 {
+                if x == i.x2 {
+                    break;
+                }
 
-            for j in r {
-                ground[i.y1 as usize][j as usize] += 1;
+                x += x_sum;
+            }
+            // diagonal
+            else {
+                if !part1 {
+                    if x == i.x2 || y == i.y2 {
+                        break;
+                    }
+
+                    x += x_sum;
+                    y += y_sum;
+                } else {
+                    break;
+                }
             }
         }
     }
@@ -65,60 +81,12 @@ pub fn part1(input: &Vec<Line>) -> u32 {
     sum
 }
 
+#[aoc(day5, part1)]
+pub fn part1(input: &Vec<Line>) -> u32 {
+    solve(input, true)
+}
+
 #[aoc(day5, part2)]
 pub fn part2(input: &Vec<Line>) -> u32 {
-    let mut ground = [[0; 1000]; 1000];
-
-    for i in input {
-        if i.x1 == i.x2 {
-            let r = if i.y1 > i.y2 {
-                i.y2..=i.y1
-            } else {
-                i.y1..=i.y2
-            };
-
-            for j in r {
-                ground[j as usize][i.x1 as usize] += 1;
-            }
-        } else if i.y1 == i.y2 {
-            let r = if i.x1 > i.x2 {
-                i.x2..=i.x1
-            } else {
-                i.x1..=i.x2
-            };
-
-            for j in r {
-                ground[i.y1 as usize][j as usize] += 1;
-            }
-        } else {
-            // handle all 4 cases of diagonals
-            let x_sum = if i.x1 > i.x2 { -1 } else { 1 };
-            let y_sum = if i.y1 > i.y2 { -1 } else { 1 };
-            let mut x = i.x1 as i32;
-            let mut y = i.y1 as i32;
-
-            loop {
-                ground[y as usize][x as usize] += 1;
-
-                if x == i.x2 as i32 && y == i.y2 as i32 {
-                    break;
-                }
-
-                x += x_sum;
-                y += y_sum;
-            }
-        }
-    }
-
-    let mut sum = 0;
-
-    for i in 0..ground.len() {
-        for j in 0..ground[i].len() {
-            if ground[i][j] >= 2 {
-                sum += 1;
-            }
-        }
-    }
-
-    sum
+    solve(input, false)
 }
